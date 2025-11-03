@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harry's Kitchen — Portal Login</title>
+  <meta name="description" content="Login to track and manage your kitchen orders in real time" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --hk-bg:#fff9f4;
+      --hk-card:#ffffff;
+      --hk-accent:#ff7a1a;
+      --hk-accent-dark:#e5670d;
+      --hk-accent-2:#2f855a;
+      --hk-text:#2b2b2b;
+      --hk-muted:#6b7280;
+      --radius:20px;
+      --hk-ring: 0 0 0 .2rem rgba(255,122,26,.25);
+    }
+    body{
+      margin:0; font-family:"Poppins",sans-serif; background:var(--hk-bg); display:grid; place-items:center; height:100vh; color:var(--hk-text);
+    }
+    .container{
+      display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; max-width:420px; background:var(--hk-card);
+      border-radius:var(--radius); padding:30px; box-shadow:0 12px 34px rgba(0,0,0,.08);
+    }
+    img.logo{
+      width:140px; height:140px; margin-bottom:1px; border-radius:50%; object-fit:cover; object-position:center;
+      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+    }
+    h1{font-size:24px; margin:10px 0 5px; color:var(--hk-accent-dark)}
+    p.subtitle{margin:0 0 25px; font-size:14px; color:var(--hk-muted)}
+    form{width:100%; display:grid; gap:14px}
+    label{font-weight:600; font-size:14px}
+    input{width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; font-size:15px;}
+    input:focus{border-color:var(--hk-accent); outline:none; box-shadow:var(--hk-ring)}
+    .btn{background:linear-gradient(180deg,var(--hk-accent),var(--hk-accent-dark)); color:#fff; border:none; border-radius:12px; padding:12px 18px; font-size:15px; font-weight:600; cursor:pointer;}
+    .btn:hover{opacity:.9}
+    .footer{font-size:12px; color:var(--hk-muted); margin-top:12px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="image.png" alt="Harry's Kitchen Logo" class="logo" />
+    <h1>Harry's Kitchen</h1>
+    <p class="subtitle">Doctor Curated Homely Meals — Portal Login</p>
+
+    <form id="loginForm" novalidate>
+      <label for="userid">User ID</label>
+      <input id="userid" name="user_id" type="text" placeholder="e.g. HK-204" required />
+
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="••••••••" required />
+
+      <button class="btn" type="submit">Sign In</button>
+    </form>
+
+    <p class="footer">Need access? <a href="#" onclick="alert('Contact Harish to enable your portal access.'); return false;" style="color:var(--hk-accent-2); font-weight:700; text-decoration:none">Request portal access</a></p>
+  </div>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const userid = document.getElementById('userid').value.trim();
+      const pw = document.getElementById('password').value;
+      if(!userid || !pw){
+        alert('Please fill all fields.');
+        return;
+      }
+      alert(`Welcome ${userid}!\nRedirecting to Kitchen Dashboard...`);
+    });
+  </script>
+</body>
+</html>
