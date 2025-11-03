@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Harry's Kitchen — New Order</title>
+  <meta name="description" content="Enter customer and item details for a new order" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --hk-bg:#fff9f4; --hk-card:#ffffff; --hk-accent:#ff7a1a; --hk-accent-dark:#e5670d; --hk-green:#2f855a; --hk-text:#2b2b2b; --hk-muted:#6b7280; --radius:18px; --ring:0 0 0 .2rem rgba(255,122,26,.25);
+      --shadow:0 10px 28px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:"Poppins",system-ui,Segoe UI,Arial,sans-serif; background:var(--hk-bg); color:var(--hk-text); display:grid; place-items:center; min-height:100vh; padding:24px}
+    .card{background:var(--hk-card); width:100%; max-width:700px; border-radius:var(--radius); box-shadow:var(--shadow); padding:22px}
+    header{display:flex; align-items:center; gap:12px; margin-bottom:12px}
+    .logo{width:56px; height:56px; border-radius:50%; object-fit:cover; border:3px solid var(--hk-accent)}
+    h1{font-size:20px; margin:0}
+    p.small{margin:0; color:var(--hk-muted); font-size:12px}
+
+    form{display:grid; gap:10px; margin-top:8px}
+    label{font-weight:600; font-size:13px}
+    input{width:100%; padding:6px 8px; border-radius:8px; border:1px solid #e5e7eb; font-size:13px}
+    input:focus{outline:none; border-color:var(--hk-accent); box-shadow:var(--ring)}
+    .row3{display:grid; gap:8px; grid-template-columns: 2fr 1fr 1fr; align-items:end;}
+
+    .total{display:flex; justify-content:space-between; align-items:center; background:#fff7f1; border:1px solid #ffe1cd; color:#7a3b0c; padding:6px 10px; border-radius:8px; font-weight:600; font-size:13px}
+
+    .btns{display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap}
+    .btn{padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:700; border:1px solid #e5e7eb; background:#fff; font-size:13px}
+    .btn.primary{color:#fff; background:linear-gradient(180deg,var(--hk-accent),var(--hk-accent-dark)); border:none}
+
+    table{width:100%; border-collapse:separate; border-spacing:0; margin-top:10px}
+    th,td{padding:8px 10px; border-bottom:1px solid #f1f5f9; font-size:13px}
+    th{text-align:left; color:#6b7280; font-weight:700}
+    td.num{text-align:right}
+
+    .error{display:none; background:#fff3ea; border:1px solid #ffd5b3; color:#a74c0a; padding:8px 10px; border-radius:8px; font-size:13px}
+    .ok{display:none; background:#eef6f2; border:1px solid #d6efe2; color:#0f5132; padding:8px 10px; border-radius:8px; font-size:13px}
+
+    #submitOrder {
+      margin-top:15px;
+      width:100%;
+      padding:10px 16px;
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+      background:linear-gradient(180deg,var(--hk-accent),var(--hk-accent-dark));
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+    }
+    #submitOrder.processing {
+      background:#f97316;
+      opacity:0.8;
+      cursor:wait;
+    }
+  </style>
+</head>
+<body>
+  <section class="card">
+    <header>
+      <img src="image.png" alt="Harry's Kitchen" class="logo" />
+      <div>
+        <h1>New Order</h1>
+        <p class="small">Enter item & customer details, then add to the list.</p>
+      </div>
+    </header>
+
+    <div id="msgErr" class="error" role="alert">Please fill all fields correctly (price ≥ 0, count ≥ 1).</div>
+    <div id="msgOk" class="ok" role="status">Item added!</div>
+
+    <form id="orderForm" novalidate>
+      <div>
+        <label for="customer">Customer Name</label>
+        <input id="customer" name="customer" type="text" placeholder="e.g. Riya Sharma" required />
+      </div>
+      <div class="row3">
+        <div>
+          <label for="item">Item Name</label>
+          <input id="item" name="item" type="text" placeholder="e.g. Paneer Butter Masala" required />
+        </div>
+        <div>
+          <label for="price">Item Price</label>
+          <input id="price" name="price" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 12.50" required />
+        </div>
+        <div>
+          <label for="count">Item Count</label>
+          <input id="count" name="count" type="number" min="1" step="1" placeholder="e.g. 2" required />
+        </div>
+      </div>
+
+      <div class="total">
+        <span>Total</span>
+        <span id="total">₹0.00</span>
+      </div>
+
+      <div class="btns">
+        <button type="button" id="clear" class="btn">Clear</button>
+        <button type="submit" class="btn primary">Add Item</button>
+      </div>
+    </form>
+
+    <table aria-label="Items list">
+      <thead>
+        <tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Item</th><th class="num">Price</th><th class="num">Qty</th><th class="num">Line Total</th></tr>
+      </thead>
+      <tbody id="list"><tr><td colspan="7" style="color:#9aa0a6; text-align:center; padding:14px">No items yet</td></tr></tbody>
+      <tfoot>
+        <tr><th colspan="6" style="text-align:right">Grand Total</th><th class="num" id="grand">₹0.00</th></tr>
+      </tfoot>
+    </table>
+
+    <button id="submitOrder">Submit Order</button>
+  </section>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    const fmt = (n)=> new Intl.NumberFormat('en-IN',{ style:'currency', currency:'INR' }).format(n||0);
+    let items = [];
+    let orderCounter = 1000;
+
+    function calc(){
+      const price = parseFloat($('#price').value)||0; const count = parseInt($('#count').value)||0;
+      $('#total').textContent = fmt(price*count);
+    }
+
+    ['#price','#count'].forEach(id=> $(id).addEventListener('input', calc));
+
+    $('#clear').addEventListener('click', ()=>{
+      ['#customer','#item','#price','#count'].forEach(id=> $(id).value='');
+      $('#total').textContent = fmt(0); $('#msgErr').style.display='none'; $('#msgOk').style.display='none';
+      $('#customer').focus();
+    });
+
+    $('#orderForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      $('#msgErr').style.display='none'; $('#msgOk').style.display='none';
+      const customer = $('#customer').value.trim();
+      const item = $('#item').value.trim();
+      const price = parseFloat($('#price').value);
+      const count = parseInt($('#count').value,10);
+      const valid = customer && item && !isNaN(price) && price>=0 && Number.isInteger(count) && count>=1;
+      if(!valid){ $('#msgErr').style.display='block'; return; }
+
+      const now = new Date();
+      const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()}`;
+      const orderId = `HK${orderCounter++}`;
+      items.push({orderId, date: dateStr, customer,item,price,count});
+      render();
+      $('#msgOk').style.display='block';
+      $('#orderForm').reset(); calc();
+      $('#customer').focus();
+    });
+
+    function render(){
+      const body = $('#list'); body.innerHTML = '';
+      if(items.length===0){ body.innerHTML = '<tr><td colspan="7" style="color:#9aa0a6; text-align:center; padding:14px">No items yet</td></tr>'; $('#grand').textContent = fmt(0); return; }
+      let grand = 0;
+      for(const r of items){
+        const line = r.price * r.count; grand += line;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.orderId}</td><td>${r.date}</td><td>${escapeHtml(r.customer)}</td><td>${escapeHtml(r.item)}</td><td class="num">${fmt(r.price)}</td><td class="num">${r.count}</td><td class="num">${fmt(line)}</td>`;
+        body.appendChild(tr);
+      }
+      $('#grand').textContent = fmt(grand);
+    }
+
+    function escapeHtml(str){
+      return str.replace(/[&<>"']/g, (c)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    }
+
+    // Submit Order button
+    $('#submitOrder').addEventListener('click', ()=>{
+      const btn = $('#submitOrder');
+      btn.classList.add('processing');
+      btn.textContent = 'Adding to Orders...';
+      btn.disabled = true;
+      setTimeout(()=>{
+        btn.textContent = 'Submitted!';
+        btn.classList.remove('processing');
+        btn.style.background = '#16a34a';
+      },2000);
+    });
+
+    // Initialize
+    calc();
+  </script>
+</body>
+</html>
