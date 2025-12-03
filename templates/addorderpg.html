@@ -25,6 +25,7 @@
     label{font-weight:600; font-size:13px}
     input{width:100%; padding:6px 8px; border-radius:8px; border:1px solid #e5e7eb; font-size:13px}
     input:focus{outline:none; border-color:var(--hk-accent); box-shadow:var(--ring)}
+    input[readonly]{background:#f9fafb; color:#6b7280;}
     .row3{display:grid; gap:8px; grid-template-columns: 2fr 1fr 1fr; align-items:end;}
 
     .total{display:flex; justify-content:space-between; align-items:center; background:#fff7f1; border:1px solid #ffe1cd; color:#7a3b0c; padding:6px 10px; border-radius:8px; font-weight:600; font-size:13px}
@@ -39,7 +40,6 @@
     td.num{text-align:right}
 
     .error{display:none; background:#fff3ea; border:1px solid #ffd5b3; color:#a74c0a; padding:8px 10px; border-radius:8px; font-size:13px}
-    .ok{display:none; background:#eef6f2; border:1px solid #d6efe2; color:#0f5132; padding:8px 10px; border-radius:8px; font-size:13px}
 
     #submitOrder {
       margin-top:15px;
@@ -63,20 +63,36 @@
 <body>
   <section class="card">
     <header>
-      <img src="image.png" alt="Harry's Kitchen" class="logo" />
+      <img src="{{ url_for('static', filename='image.png') }}" alt="Harry's Kitchen" class="logo" />
       <div>
         <h1>New Order</h1>
-        <p class="small">Enter item & customer details, then add to the list.</p>
+        <p class="small">
+          {% if items %}
+            Adding items for <strong>{{ current_customer }}</strong>.
+          {% else %}
+            Enter customer & first item details to start a new order.
+          {% endif %}
+           &nbsp;|&nbsp;
+           <a href="/dashboard" style="color:#f97316;text-decoration:none;font-weight:600;">View Dashboard</a>
+        </p>
       </div>
     </header>
 
     <div id="msgErr" class="error" role="alert">Please fill all fields correctly (price ≥ 0, count ≥ 1).</div>
-    <div id="msgOk" class="ok" role="status">Item added!</div>
 
-    <form id="orderForm" novalidate>
+    <!-- Add Item form -->
+    <form id="orderForm" action="/add" method="POST">
       <div>
         <label for="customer">Customer Name</label>
-        <input id="customer" name="customer" type="text" placeholder="e.g. Riya Sharma" required />
+        <input
+          id="customer"
+          name="customer"
+          type="text"
+          placeholder="e.g. Riya Sharma"
+          value="{{ current_customer }}"
+          {% if items %}readonly{% endif %}
+          required
+        />
       </div>
       <div class="row3">
         <div>
@@ -94,99 +110,103 @@
       </div>
 
       <div class="total">
-        <span>Total</span>
-        <span id="total">₹0.00</span>
+        <span>Line Total</span>
+        <span id="total">$0.00</span>
       </div>
 
       <div class="btns">
-        <button type="button" id="clear" class="btn">Clear</button>
+        <button type="button" id="clear" class="btn">Clear Line</button>
         <button type="submit" class="btn primary">Add Item</button>
       </div>
     </form>
 
+    <!-- Items table -->
     <table aria-label="Items list">
       <thead>
-        <tr><th>Order ID</th><th>Date</th><th>Customer</th><th>Item</th><th class="num">Price</th><th class="num">Qty</th><th class="num">Line Total</th></tr>
+        <tr>
+          <th>#</th>
+          <th>Customer</th>
+          <th>Item</th>
+          <th class="num">Price</th>
+          <th class="num">Qty</th>
+          <th class="num">Line Total</th>
+        </tr>
       </thead>
-      <tbody id="list"><tr><td colspan="7" style="color:#9aa0a6; text-align:center; padding:14px">No items yet</td></tr></tbody>
+      <tbody id="list">
+        {% if items %}
+          {% for r in items %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ r.customer }}</td>
+            <td>{{ r.item }}</td>
+            <td class="num">${{ "%.2f"|format(r.price) }}</td>
+            <td class="num">{{ r.count }}</td>
+            <td class="num">${{ "%.2f"|format(r.line_total) }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" style="color:#9aa0a6; text-align:center; padding:14px">No items yet</td></tr>
+        {% endif %}
+      </tbody>
       <tfoot>
-        <tr><th colspan="6" style="text-align:right">Grand Total</th><th class="num" id="grand">₹0.00</th></tr>
+        <tr>
+          <th colspan="5" style="text-align:right">Grand Total</th>
+          <th class="num" id="grand">${{ "%.2f"|format(grand_total or 0) }}</th>
+        </tr>
       </tfoot>
     </table>
 
-    <button id="submitOrder">Submit Order</button>
+    <!-- Submit + Reset buttons -->
+    <div style="margin-top:12px; display:flex; gap:8px; justify-content:space-between; flex-wrap:wrap;">
+      <form action="/reset" method="POST">
+        <button type="submit" class="btn">Reset Order</button>
+      </form>
+      <form action="/submit-order" method="POST" onsubmit="return confirm('Submit this order?');">
+        <button id="submitOrder" type="submit" class="btn primary">Submit Order</button>
+      </form>
+    </div>
   </section>
 
   <script>
     const $ = (s)=>document.querySelector(s);
     const fmt = (n)=> new Intl.NumberFormat('en-IN',{ style:'currency', currency:'INR' }).format(n||0);
-    let items = [];
-    let orderCounter = 1000;
 
     function calc(){
-      const price = parseFloat($('#price').value)||0; const count = parseInt($('#count').value)||0;
+      const price = parseFloat($('#price').value)||0;
+      const count = parseInt($('#count').value)||0;
       $('#total').textContent = fmt(price*count);
     }
 
     ['#price','#count'].forEach(id=> $(id).addEventListener('input', calc));
 
     $('#clear').addEventListener('click', ()=>{
-      ['#customer','#item','#price','#count'].forEach(id=> $(id).value='');
-      $('#total').textContent = fmt(0); $('#msgErr').style.display='none'; $('#msgOk').style.display='none';
-      $('#customer').focus();
+      // Clear only current line inputs; keep customer as is
+      ['#item','#price','#count'].forEach(id=> $(id).value='');
+      $('#total').textContent = fmt(0);
+      $('#msgErr').style.display='none';
+      $('#item').focus();
     });
 
     $('#orderForm').addEventListener('submit', (e)=>{
-      e.preventDefault();
-      $('#msgErr').style.display='none'; $('#msgOk').style.display='none';
       const customer = $('#customer').value.trim();
       const item = $('#item').value.trim();
       const price = parseFloat($('#price').value);
       const count = parseInt($('#count').value,10);
       const valid = customer && item && !isNaN(price) && price>=0 && Number.isInteger(count) && count>=1;
-      if(!valid){ $('#msgErr').style.display='block'; return; }
-
-      const now = new Date();
-      const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()}`;
-      const orderId = `HK${orderCounter++}`;
-      items.push({orderId, date: dateStr, customer,item,price,count});
-      render();
-      $('#msgOk').style.display='block';
-      $('#orderForm').reset(); calc();
-      $('#customer').focus();
-    });
-
-    function render(){
-      const body = $('#list'); body.innerHTML = '';
-      if(items.length===0){ body.innerHTML = '<tr><td colspan="7" style="color:#9aa0a6; text-align:center; padding:14px">No items yet</td></tr>'; $('#grand').textContent = fmt(0); return; }
-      let grand = 0;
-      for(const r of items){
-        const line = r.price * r.count; grand += line;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.orderId}</td><td>${r.date}</td><td>${escapeHtml(r.customer)}</td><td>${escapeHtml(r.item)}</td><td class="num">${fmt(r.price)}</td><td class="num">${r.count}</td><td class="num">${fmt(line)}</td>`;
-        body.appendChild(tr);
+      if(!valid){
+        e.preventDefault();
+        $('#msgErr').style.display='block';
       }
-      $('#grand').textContent = fmt(grand);
-    }
-
-    function escapeHtml(str){
-      return str.replace(/[&<>"']/g, (c)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-    }
-
-    // Submit Order button
-    $('#submitOrder').addEventListener('click', ()=>{
-      const btn = $('#submitOrder');
-      btn.classList.add('processing');
-      btn.textContent = 'Adding to Orders...';
-      btn.disabled = true;
-      setTimeout(()=>{
-        btn.textContent = 'Submitted!';
-        btn.classList.remove('processing');
-        btn.style.background = '#16a34a';
-      },2000);
     });
 
-    // Initialize
+    const submitBtn = $('#submitOrder');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', ()=>{
+        submitBtn.classList.add('processing');
+        submitBtn.textContent = 'Submitting...';
+      });
+    }
+
     calc();
   </script>
 </body>
