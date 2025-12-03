@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Order {{ order_id }} - Harry's Kitchen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:#f3f4f6; margin:0; padding:24px; display:flex; justify-content:center;}
+    .card{background:#fff; max-width:700px; width:100%; border-radius:14px; padding:20px; box-shadow:0 10px 25px rgba(0,0,0,.08);}
+    h1{margin:0 0 4px; font-size:22px;}
+    p{margin:4px 0; color:#4b5563; font-size:13px;}
+    .badge{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; font-size:11px; font-weight:600; background:#ecfdf5; color:#047857; margin-top:6px;}
+    .badge-dot{width:8px; height:8px; border-radius:999px; background:#22c55e;}
+    table{width:100%; border-collapse:collapse; margin-top:14px; font-size:13px;}
+    th,td{padding:8px 10px; border-bottom:1px solid #e5e7eb;}
+    th{text-align:left; color:#6b7280;}
+    td.num{text-align:right;}
+    .tot-row th{text-align:right;}
+    .footer{display:flex; justify-content:space-between; align-items:center; margin-top:14px; font-size:13px; color:#6b7280;}
+    .btn{padding:8px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600; font-size:13px; background:#f97316; color:#fff;}
+  </style>
+</head>
+<body>
+  <section class="card">
+    <header>
+      <h1>Order Confirmed 🎉</h1>
+      <p>Order <strong>{{ order_id }}</strong> for <strong>{{ customer }}</strong> has been recorded.                
+      <a href="/dashboard" style="color:#f97316;text-decoration:none;font-weight:600;">View Dashboard</a> </p>
+      <div class="badge">
+        <span class="badge-dot"></span>
+        <span>Status: {{ status }}</span>
+      </div>
+      <p style="margin-top:8px;">Date: {{ order_date }}</p>
+    </header>
+
+    <h2 style="font-size:14px; margin-top:16px;">Items</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Item</th>
+          <th class="num">Price</th>
+          <th class="num">Qty</th>
+          <th class="num">Line Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for li in line_items %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ li.item }}</td>
+          <td class="num">${{ "%.2f"|format(li.price) }}</td>
+          <td class="num">{{ li.count }}</td>
+          <td class="num">${{ "%.2f"|format(li.line_total) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="tot-row">
+          <th colspan="4">Grand Total</th>
+          <th class="num">${{ "%.2f"|format(grand_total or 0) }}</th>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="footer">
+      <div>
+        View this order later at:<br>
+        <code>/order/{{ order_id }}</code>
+      </div>
+      <form action="/" method="GET">
+        <button class="btn" type="submit">New Order</button>
+      </form>
+    </div>
+  </section>
+</body>
+</html>
