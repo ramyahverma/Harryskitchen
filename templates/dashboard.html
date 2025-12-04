@@ -4,14 +4,26 @@
   <meta charset="utf-8" />
   <title>Harry's Kitchen — Orders Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      --bg:#f3f4f6; --card:#ffffff; --accent:#f97316; --accent-dark:#ea580c; --text:#111827; --muted:#6b7280; --radius:16px; --shadow:0 10px 25px rgba(0,0,0,.08);
+      --bg:#fff9f4;
+      --card:#ffffff;
+      --accent:#f97316;
+      --accent-dark:#ea580c;
+      --text:#111827;
+      --muted:#6b7280;
+      --radius:16px;
+      --shadow:0 10px 25px rgba(0,0,0,.08);
     }
     *{box-sizing:border-box;}
     body{
       margin:0;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      font-family:"Poppins",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:var(--bg);
       color:var(--text);
       padding:24px;
@@ -19,10 +31,42 @@
       justify-content:center;
     }
     .wrap{width:100%; max-width:900px;}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
-    h1{margin:0;font-size:22px;}
     .link{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;}
     .link:hover{text-decoration:underline;}
+    p.small{margin:2px 0 0; color:var(--muted); font-size:13px}
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    }
+    .brand img{
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      object-fit:cover;
+    }
+    .brand h1{
+      font-size:22px;
+      margin:0;
+      color:var(--accent-dark);
+    }
+    .top-right-link{
+      text-decoration:none;
+      background:var(--accent);
+      color:white;
+      padding:8px 14px;
+      border-radius:8px;
+      font-weight:600;
+      font-size:13px;
+    }
+    .top-right-link:hover{opacity:0.9;}
 
     .card{
       background:var(--card);
@@ -117,15 +161,16 @@
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1>Orders Dashboard</h1>
-        <p style="margin:4px 0 0;font-size:13px;color:#6b7280;">
-          Quick view of all Harry's Kitchen orders.
-        </p>
+      <div class="brand">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
+        <div>
+          <h1>Orders Dashboard</h1>
+          <p class="small">
+            Quick view of all Harry's Kitchen orders.
+          </p>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="/" class="link">+ New Order</a>
-      </div>
+      <a href="{{ url_for('home') }}" class="top-right-link">Home</a>
     </header>
 
     <section class="card">
@@ -166,10 +211,11 @@
         <div class="field" style="flex-direction:row;gap:6px;align-items:center;margin-top:14px;">
             <button type="submit">Apply filters</button>
             <button type="button" class="secondary-btn" onclick="window.location.href='/dashboard'">
-            Clear
+              Clear
             </button>
         </div>
       </form>
+
       {% if orders %}
       <table>
         <thead>
@@ -177,6 +223,7 @@
             <th>Order ID</th>
             <th>Date</th>
             <th>Customer</th>
+            <th>Status</th>
             <th class="num">Lines</th>
             <th class="num">Order Total</th>
           </tr>
@@ -189,6 +236,7 @@
             </td>
             <td>{{ o.date }}</td>
             <td>{{ o.customer }}</td>
+            <td>{{ o.status }}</td>
             <td class="num">{{ o.line_count }}</td>
             <td class="num">${{ "%.2f"|format(o.total) }}</td>
           </tr>

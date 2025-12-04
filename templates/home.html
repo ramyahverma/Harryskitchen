@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Harry's Kitchen — Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --hk-bg:#fff9f4;
+      --hk-card:#ffffff;
+      --hk-accent:#ff7a1a;
+      --hk-accent-dark:#e5670d;
+      --hk-accent-2:#2f855a;
+      --hk-text:#2b2b2b;
+      --hk-muted:#6b7280;
+      --radius:20px;
+    }
+    body{margin:0; font-family:"Poppins",sans-serif; background:var(--hk-bg); color:var(--hk-text);}
+    .shell{max-width:1100px; margin:0 auto; padding:20px;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+    .brand{display:flex; align-items:center; gap:10px;}
+    .brand img{width:60px; height:60px; border-radius:50%; object-fit:cover;}
+    .brand h1{font-size:22px; margin:0; color:var(--hk-accent-dark);}
+    .welcome{font-size:13px; color:var(--hk-muted);}
+    .tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;}
+    .tab-link{
+      text-decoration:none;
+      padding:9px 16px;
+      border-radius:999px;
+      background:var(--hk-card);
+      border:1px solid #ffe0c7;
+      font-size:14px; font-weight:500;
+      color:var(--hk-accent-dark);
+      box-shadow:0 4px 10px rgba(0,0,0,.03);
+    }
+    .tab-link:hover{background:var(--hk-accent); color:#fff;}
+    .card{
+      background:var(--hk-card); border-radius:var(--radius);
+      padding:20px; box-shadow:0 12px 30px rgba(0,0,0,.06);
+    }
+    .logout{
+      border:none; background:#fee2e2; color:#b91c1c;
+      padding:8px 14px; border-radius:999px; cursor:pointer;
+      font-size:12px; font-weight:600;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div class="brand">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
+        <div>
+          <h1>Harry's Kitchen</h1>
+          <div class="welcome">
+            Welcome, {{ user_id }} — happy cooking!
+          </div>
+        </div>
+      </div>
+      <form action="{{ url_for('logout') }}" method="get">
+        <button class="logout" type="submit">Logout</button>
+      </form>
+    </div>
+
+    <div class="tabs">
+      <a href="{{ url_for('dashboard') }}" class="tab-link">Dashboard</a>
+      <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
+      <!-- Search / Update can be wired later when you add routes -->
+      <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
+      <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;">Portal Home</h2>
+      <p style="color:var(--hk-muted); font-size:14px;">
+        Use the tabs above to view your dashboard, add new orders,
+        and (soon) search or update existing orders.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

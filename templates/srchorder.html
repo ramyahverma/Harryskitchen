@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Order — Harry's Kitchen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root{
+            --hk-bg:#fff9f4;
+            --hk-card:#ffffff;
+            --hk-accent:#ff7a1a;
+            --hk-accent-dark:#e5670d;
+            --hk-text:#2b2b2b;
+            --hk-muted:#6b7280;
+            --radius:20px;
+        }
+
+        body{
+            margin:0;
+            font-family:"Poppins",sans-serif;
+            background:var(--hk-bg);
+            color:var(--hk-text);
+        }
+
+        .shell{
+            max-width:900px;
+            margin:0 auto;
+            padding:20px;
+        }
+
+        .topbar{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:20px;
+        }
+
+        .brand{
+            display:flex;
+            align-items:center;
+            gap:10px;
+        }
+
+        .brand img{
+            width:60px;
+            height:60px;
+            border-radius:50%;
+            object-fit:cover;
+        }
+
+        .brand h1{
+            font-size:22px;
+            margin:0;
+            color:var(--hk-accent-dark);
+        }
+
+        .tabs{
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            margin-bottom:20px;
+        }
+
+        .tab-link{
+            text-decoration:none;
+            padding:9px 16px;
+            border-radius:999px;
+            background:var(--hk-card);
+            border:1px solid #ffe0c7;
+            font-size:14px;
+            font-weight:500;
+            color:var(--hk-accent-dark);
+            box-shadow:0 4px 10px rgba(0,0,0,.03);
+        }
+
+        .tab-link.active{
+            background:var(--hk-accent);
+            color:#fff;
+        }
+
+        .card{
+            background:var(--hk-card);
+            padding:25px;
+            border-radius:var(--radius);
+            box-shadow:0 12px 30px rgba(0,0,0,.06);
+        }
+
+        label{
+            font-weight:600;
+            font-size:14px;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            border-radius:12px;
+            border:1px solid #ddd;
+            font-size:16px;
+            margin-top:6px;
+            margin-bottom:14px;
+        }
+
+        button{
+            background:linear-gradient(180deg,var(--hk-accent),var(--hk-accent-dark));
+            color:#fff;
+            border:none;
+            padding:12px 20px;
+            border-radius:12px;
+            font-size:16px;
+            font-weight:600;
+            cursor:pointer;
+        }
+
+        .error{
+            color:#b91c1c;
+            font-size:14px;
+            margin-bottom:10px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="shell">
+
+    <div class="topbar">
+        <div class="brand">
+            <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
+            <h1>Search Order</h1>
+        </div>
+
+        <a href="{{ url_for('logout') }}" style="
+            border:none;background:#fee2e2;color:#b91c1c;
+            padding:8px 14px;border-radius:999px;
+            cursor:pointer;font-size:12px;font-weight:600;
+            text-decoration:none;">
+            Logout
+        </a>
+    </div>
+
+    <div class="tabs">
+        <a href="{{ url_for('home') }}" class="tab-link">Home</a>
+        <a href="{{ url_for('dashboard') }}" class="tab-link">Dashboard</a>
+        <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
+        <a href="{{ url_for('srchorder') }}" class="tab-link active">Search Order</a>
+        <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top:0;">Search by Order ID</h2>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <label for="order_id">Enter Order ID</label>
+            <input type="text" id="order_id" name="order_id"
+                   placeholder="e.g. HK1001" required />
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

@@ -117,6 +117,33 @@
             <span class="badge-dot"></span>
             <span>Status: {{ status }}</span>
           </div>
+
+          <!-- Current status display -->
+          <p><strong>Current Status:</strong> {{ status }}</p>
+
+          <!-- 🔄 Update Status Form -->
+          <form method="POST"
+                action="{{ url_for('update_order_status', order_id=order_id) }}"
+                style="margin-top: 12px;"
+                onsubmit="return confirm('Update this order?');">
+
+            <label for="status"><strong>Update Order Status</strong></label>
+            <select id="status" name="status" style="
+                padding:8px 10px;
+                border-radius:8px;
+                border:1px solid #ddd;
+                margin-left:8px;">
+              <option value="Accepted"   {% if status == "Accepted" %}selected{% endif %}>Accepted</option>
+              <option value="In Progress" {% if status == "In Progress" %}selected{% endif %}>In Progress</option>
+              <option value="Ready"      {% if status == "Ready" %}selected{% endif %}>Ready</option>
+              <option value="Delivered"  {% if status == "Delivered" %}selected{% endif %}>Delivered</option>
+              <option value="Cancelled"  {% if status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit" class="btn" style="margin-left:10px;">
+              Update Status
+            </button>
+          </form>
+
           <p style="margin-top:8px;">Date: {{ order_date }}</p>
         </div>
       </header>

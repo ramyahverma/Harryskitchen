@@ -1,10 +1,14 @@
-from flask import Flask, request, redirect, render_template, render_template_string
+from flask import (Flask, request, redirect, render_template, render_template_string,url_for,
+    session,)
 import os
 import pandas as pd
 from datetime import datetime
 import re
+from functools import wraps
 
 app = Flask(__name__)
+
+app.secret_key = "super-secret-change-me"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EXCEL_FILE = os.path.join(BASE_DIR, "orders.xlsx")
@@ -13,6 +17,14 @@ EXCEL_FILE = os.path.join(BASE_DIR, "orders.xlsx")
 items = []
 current_customer = ""
 
+def login_required(f):
+    """Decorator to protect routes: sends user to login if not authenticated."""
+    @wraps(f)
+    def wrapped(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return wrapped
 
 def get_next_order_id():
     """
@@ -43,9 +55,52 @@ def get_next_order_id():
 
     return f"HK{next_num}"
 
+@app.route("/", methods=["GET", "POST"])
+def login():
+    """
+    Landing page: login form.
+    On success -> /home
+    """
+    error = None
 
-@app.route("/", methods=["GET"])
-def index():
+    if request.method == "POST":
+        userid = request.form.get("userid", "").strip()
+        password = request.form.get("password", "")
+
+        # ⭐ Hard-coded credentials for now (change as you like)
+        VALID_USERS = {
+            "HK-204": "hk204@123",
+            "admin": "admin123",
+        }
+
+        if userid in VALID_USERS and VALID_USERS[userid] == password:
+            session["logged_in"] = True
+            session["user_id"] = userid
+            return redirect(url_for("home"))
+        else:
+            error = "Invalid User ID or Password. Please try again."
+
+    return render_template("index.html", error=error)
+
+@app.route("/home", methods=["GET"])
+@login_required
+def home():
+    """
+    Simple home page with tabs:
+    Dashboard | Add Order | Search Order | Update Order (later)
+    """
+    user_id = session.get("user_id")
+    return render_template("home.html", user_id=user_id)
+
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    """Clear session and go back to login."""
+    session.clear()
+    return redirect(url_for("login"))
+
+@app.route("/addorder", methods=["GET"])
+def addorder():
     grand_total = sum(i["line_total"] for i in items) if items else 0
 
     return render_template(
@@ -82,7 +137,7 @@ def add_item():
         "line_total": line_total,
     })
 
-    return redirect("/")
+    return redirect("/addorder")
 
 
 @app.route("/submit-order", methods=["POST"])
@@ -98,7 +153,7 @@ def submit_order():
     global items, current_customer
 
     if not items:
-        return redirect("/")
+        return redirect("/addorder")
 
     today = datetime.now().strftime("%m/%d/%Y")
     order_id = get_next_order_id()
@@ -157,6 +212,128 @@ def submit_order():
         grand_total=grand_total,
     )
 
+@app.route("/search-order", methods=["GET", "POST"])
+@login_required
+def srchorder():
+    order_info = None
+    error = None
+
+    if request.method == "POST":
+        order_id = request.form.get("order_id", "").strip()
+
+        if not order_id:
+            error = "Please enter an Order ID."
+        else:
+            # Redirect to view_order() which you already have
+            return redirect(url_for("view_order", order_id=order_id))
+
+    return render_template("srchorder.html", order_info=order_info, error=error)
+
+@app.route("/updorder", methods=["GET","POST"])
+@login_required
+def updorder():
+    order_info = None
+    msg = request.args.get("msg")
+    error = None
+
+    if request.method == "POST":
+        order_id = request.form.get("order_id", "").strip()
+
+        if not order_id:
+            error = "Please enter an Order ID."
+        else:
+            # Redirect to update_view_order() which you already have
+            return redirect(url_for("update_view_order", order_id=order_id))
+
+    return render_template("updorder.html", order_info=order_info, error=error, msg=msg)
+
+@app.route("/order/<order_id>/forupdate", methods=["GET"])
+def update_view_order(order_id):
+    """View an existing order later by ID using the same acknowledgment page."""
+    if not os.path.exists(EXCEL_FILE):
+        return f"No orders found. File {EXCEL_FILE} does not exist.", 404
+
+    df = pd.read_excel(EXCEL_FILE)
+
+    if "Order ID" not in df.columns:
+        return "Invalid orders file (no 'Order ID' column).", 500
+
+    subset = df[df["Order ID"] == order_id]
+
+    if subset.empty:
+        return f"No order found with ID {order_id}", 404
+
+    line_items = []
+    for _, row in subset.iterrows():
+        line_items.append({
+            "order_id": row["Order ID"],
+            "date": row["Date"],
+            "customer": row["Customer"],
+            "item": row["Item"],
+            "price": float(row["Price"]),
+            "count": int(row["Count"]),
+            "line_total": float(row["Line Total"]),
+            "status": row["Status"]
+        })
+
+    order_date = line_items[0]["date"]
+    customer_name = line_items[0]["customer"]
+    status= line_items[0]["status"]
+    grand_total = sum(li["line_total"] for li in line_items)
+
+    return render_template(
+        "updstatus.html",
+        order_id=order_id,
+        status=status,
+        order_date=order_date,
+        customer=customer_name,
+        line_items=line_items,
+        grand_total=grand_total,
+    )
+
+
+@app.route("/order/<order_id>/update-status", methods=["GET","POST"])
+@login_required
+def update_order_status(order_id):
+    """
+    Update the Status column for all rows with this Order ID
+    based on the dropdown selection from the update page.
+    """
+    new_status = request.form.get("status", "").strip()
+
+    if not new_status:
+        # No status selected – just go back to the order page
+        return redirect(url_for("view_order", order_id=order_id))
+
+    # Ensure the Excel file exists
+    if not os.path.exists(EXCEL_FILE):
+        return f"No orders found. File {EXCEL_FILE} does not exist.", 404
+
+    df = pd.read_excel(EXCEL_FILE)
+
+    if "Order ID" not in df.columns:
+        return "Invalid orders file (no 'Order ID' column).", 500
+
+    # Find rows for this order_id
+    mask = df["Order ID"] == order_id
+
+    if not mask.any():
+        return f"No order found with ID {order_id}", 404
+
+    # Make sure Status column exists
+    if "Status" not in df.columns:
+        df["Status"] = ""
+
+    # ✅ Update status
+    df.loc[mask, "Status"] = new_status
+
+    # Save back to Excel
+    df.to_excel(EXCEL_FILE, index=False)
+
+    # Redirect back to the order details page (updateOrder)
+    #return redirect(url_for("updorder",  msg="Order updated successfully"))
+    msg= "Order id : " + order_id + " updated successfully"
+    return render_template("updorder.html", msg=msg)
 
 @app.route("/order/<order_id>", methods=["GET"])
 def view_order(order_id):
@@ -209,7 +386,7 @@ def reset_order():
     global items, current_customer
     items = []
     current_customer = ""
-    return redirect("/")
+    return redirect("/addorder")
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
@@ -303,6 +480,7 @@ def dashboard():
               .agg({
                   "Date_parsed": "max",
                   "Customer": "first",
+                  "Status": "first",
                   "Line Total": "sum",
                   "Item": "count",
               })
@@ -313,11 +491,12 @@ def dashboard():
 
         orders = []
         for _, row in grouped.iterrows():
-            display_date = row["Date_parsed"].strftime("%Y-%m-%d") if not pd.isna(row["Date_parsed"]) else ""
+            display_date = row["Date_parsed"].strftime("%m-%d-%Y") if not pd.isna(row["Date_parsed"]) else ""
             orders.append({
                 "order_id": row["Order ID"],
                 "date": display_date,
                 "customer": row["Customer"],
+                "status": row["Status"],
                 "total": float(row["Order Total"]),
                 "line_count": int(row["Line Count"]),
             })
