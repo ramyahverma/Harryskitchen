@@ -28,7 +28,7 @@
         }
 
         .shell{
-            max-width:900px;
+            max-width:1000px;
             margin:0 auto;
             padding:20px;
         }
@@ -57,7 +57,10 @@
             font-size:22px;
             margin:0;
             color:var(--hk-accent-dark);
+
         }
+        .welcome{font-size:13px; color:var(--hk-muted);}
+
 
         .tabs{
             display:flex;
@@ -79,6 +82,11 @@
         }
 
         .tab-link.active{
+            background:var(--hk-accent);
+            color:#fff;
+        }
+
+        .tab-link:hover {
             background:var(--hk-accent);
             color:#fff;
         }
@@ -130,9 +138,8 @@
     <div class="topbar">
         <div class="brand">
             <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
-            <h1>Update Order</h1>
+            <h1>Harry's Kitchen - Update Order</h1>
         </div>
-
         <a href="{{ url_for('logout') }}" style="
             border:none;background:#fee2e2;color:#b91c1c;
             padding:8px 14px;border-radius:999px;
@@ -148,6 +155,9 @@
         <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
         <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
         <a href="{{ url_for('updorder') }}" class="tab-link active">Update Order</a>
+        <a href="{{ url_for('menu') }}" class="tab-link">Menu</a>
+        <a href="{{ url_for('stats') }}" class="tab-link">Stats</a>
+        <a href="{{ url_for('monthly_summary') }}" class="tab-link">Monthly Summary</a>
     </div>
 
     <div class="card">

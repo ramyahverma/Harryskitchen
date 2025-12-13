@@ -20,6 +20,10 @@
             --radius:20px;
         }
 
+        welcome{margin :0;font-size:13px; color:var(--hk-muted);}
+
+        p.small{margin:2px 0 0; color:var(--hk-muted); font-size:13px}
+
         body{
             margin:0;
             font-family:"Poppins",sans-serif;
@@ -28,7 +32,7 @@
         }
 
         .shell{
-            max-width:900px;
+            max-width:1000px;
             margin:0 auto;
             padding:20px;
         }
@@ -130,7 +134,7 @@
     <div class="topbar">
         <div class="brand">
             <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
-            <h1>Search Order</h1>
+            <h1>Harry's Kitchen - Search Order</h1>
         </div>
 
         <a href="{{ url_for('logout') }}" style="
@@ -148,6 +152,9 @@
         <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
         <a href="{{ url_for('srchorder') }}" class="tab-link active">Search Order</a>
         <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+        <a href="{{ url_for('menu') }}" class="tab-link">Menu</a>
+        <a href="{{ url_for('stats') }}" class="tab-link">Stats</a>
+        <a href="{{ url_for('monthly_summary') }}" class="tab-link">Monthly Summary</a>
     </div>
 
     <div class="card">

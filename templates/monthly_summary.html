@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Harry's Kitchen — Monthly Summary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --radius:20px;
+      --hk-bg:#fff9f4;
+      --hk-card:#ffffff;
+      --hk-accent:#ff7a1a;
+      --hk-accent-dark:#e5670d;
+      --hk-text:#2b2b2b;
+      --hk-muted:#6b7280;
+      --hk-border:#ffe0c7;
+    }
+    body {
+      margin:0;
+      font-family:"Poppins", sans-serif;
+      background:var(--hk-bg);
+      color:var(--hk-text);
+    }
+    .shell {
+      max-width:1000px;
+      margin:0 auto;
+      padding:20px;
+    }
+
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .brand img {
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      object-fit:cover;
+    }
+    .brand h1 {
+      margin:0;
+      font-size:22px;
+      color:var(--hk-accent-dark);
+    }
+    .brand p {
+      margin:2px 0 0;
+      font-size:13px;
+      color:var(--hk-muted);
+    }
+    .logout {
+      border:none;
+      background:#fee2e2;
+      color:#b91c1c;
+      padding:8px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:600;
+      text-decoration:none;
+    }
+
+    .tabs {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    .tab-link {
+      text-decoration:none;
+      padding:9px 16px;
+      border-radius:999px;
+      background:var(--hk-card);
+      border:1px solid var(--hk-border);
+      font-size:14px;
+      font-weight:500;
+      color:var(--hk-accent-dark);
+      box-shadow:0 4px 10px rgba(0,0,0,.03);
+    }
+    .tab-link:hover {
+      background:var(--hk-accent);
+      color:#fff;
+    }
+    .tab-link.active {
+      background:var(--hk-accent);
+      color:#fff;
+    }
+
+    .card {
+      background:var(--hk-card);
+      border-radius:var(--radius);
+      padding:16px 18px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.06);
+      border:1px solid #ffe8d6;
+      margin-bottom:20px;
+    }
+
+    .filters {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:flex-end;
+    }
+    .field {
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      font-size:13px;
+    }
+    .field label {
+      font-weight:500;
+      color:var(--hk-muted);
+    }
+    select, input[type="number"] {
+      padding:8px 10px;
+      border-radius:10px;
+      border:1px solid var(--hk-border);
+      font-family:"Poppins", sans-serif;
+      font-size:13px;
+      outline:none;
+      background:#fff;
+    }
+    .btn-primary {
+      border:none;
+      background:var(--hk-accent);
+      color:#fff;
+      padding:9px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:600;
+    }
+    .btn-primary:hover {
+      background:var(--hk-accent-dark);
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+      margin-top:12px;
+      font-size:13px;
+    }
+    thead {
+      background:#fff7ed;
+    }
+    th, td {
+      padding:8px 10px;
+      border-bottom:1px solid #ffe8d6;
+      text-align:left;
+    }
+    th {
+      font-weight:600;
+      color:#7c2d12;
+    }
+    tbody tr:hover {
+      background:#fffaf5;
+    }
+    .text-right {
+      text-align:right;
+    }
+    .badge-soft {
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:11px;
+      background:#fef3c7;
+      color:#92400e;
+      border:1px solid #fde68a;
+    }
+    .summary-footer {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:10px;
+      font-size:13px;
+      color:var(--hk-muted);
+    }
+    .summary-footer strong {
+      color:var(--hk-accent-dark);
+      font-size:14px;
+    }
+    .empty-state {
+      text-align:center;
+      padding:20px 10px 10px;
+      font-size:13px;
+      color:var(--hk-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="brand">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
+        <div>
+          <h1>Harry's Kitchen — Monthly Summary</h1>
+          <p>Date-wise totals for a selected month & year</p>
+        </div>
+      </div>
+      <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </div>
+
+    <!-- NAV TABS -->
+    <div class="tabs">
+      <a href="{{ url_for('home') }}" class="tab-link">Home</a>
+      <a href="{{ url_for('dashboard') }}" class="tab-link">Dashboard</a>
+      <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
+      <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
+      <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+      <a href="{{ url_for('menu') }}" class="tab-link">Menu</a>
+      <a href="{{ url_for('stats') }}" class="tab-link">Stats</a>
+      <a href="{{ url_for('monthly_summary') }}" class="tab-link active">Monthly Summary</a>
+    </div>
+
+    <!-- FILTER CARD -->
+    <div class="card">
+      <form method="get" class="filters">
+        <div class="field">
+          <label for="month">Month</label>
+          <select name="month" id="month" required>
+            {% for m in month_options %}
+              <option value="{{ m.value }}" {% if m.value|string == month|string %}selected{% endif %}>
+                {{ m.label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="year">Year</label>
+          <input type="number" name="year" id="year" min="2000" max="2100" value="{{ year }}" required>
+        </div>
+        <button type="submit" class="btn-primary">Apply</button>
+      </form>
+    </div>
+
+    <!-- RESULTS CARD -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong>Daily Totals</strong>
+          <div style="font-size:12px;color:var(--hk-muted);">
+            Month: {{ month }} / Year: {{ year }}
+          </div>
+        </div>
+        <span class="badge-soft">
+          Excluding Cancelled orders
+        </span>
+      </div>
+
+      {% if file_missing %}
+        <div class="empty-state">
+          orders.xls file not found. Please make sure it exists in the app folder.
+        </div>
+      {% elif no_data %}
+        <div class="empty-state">
+          No orders found for this month & year.
+        </div>
+      {% else %}
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th class="text-right">Number of Orders</th>
+              <th class="text-right">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in summary_rows %}
+              <tr>
+                <td>{{ row.date }}</td>
+                <td class="text-right">{{ row.order_count }}</td>
+                <td class="text-right">${{ "%.2f"|format(row.total_amount) }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="summary-footer">
+          <div>Total days shown: <strong>{{ summary_rows|length }}</strong></div>
+          <div>Monthly total: <strong>${{ "%.2f"|format(monthly_total) }}</strong></div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

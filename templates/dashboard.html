@@ -11,12 +11,12 @@
 
   <style>
     :root{
-      --bg:#fff9f4;
-      --card:#ffffff;
-      --accent:#f97316;
-      --accent-dark:#ea580c;
-      --text:#111827;
-      --muted:#6b7280;
+      --hk-bg:#fff9f4;
+      --hk-card:#ffffff;
+      --hk-accent:#f97316;
+      --hk-accent-dark:#ea580c;
+      --hk-text:#111827;
+      --hk-muted:#6b7280;
       --radius:16px;
       --shadow:0 10px 25px rgba(0,0,0,.08);
     }
@@ -25,15 +25,15 @@
       margin:0;
       font-family:"Poppins",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:var(--bg);
-      color:var(--text);
+      color:var(--hk-text);
       padding:24px;
       display:flex;
       justify-content:center;
     }
-    .wrap{width:100%; max-width:900px;}
-    .link{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;}
+    .wrap{width:100%; max-width:1000px;}
+    .link{font-size:13px;color:var(--hk-accent);text-decoration:none;font-weight:600;}
     .link:hover{text-decoration:underline;}
-    p.small{margin:2px 0 0; color:var(--muted); font-size:13px}
+    p.small{margin:2px 0 0; color:var(--hk-muted); font-size:13px}
 
     header{
       display:flex;
@@ -55,11 +55,32 @@
     .brand h1{
       font-size:22px;
       margin:0;
-      color:var(--accent-dark);
+      color:var(--hk-accent-dark);
+    }
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;
+    }
+    .tab-link{
+      text-decoration:none;
+      padding:9px 16px;
+      border-radius:999px;
+      background:var(--hk-card);
+      border:1px solid #ffe0c7;
+      font-size:14px; font-weight:500;
+      color:var(--hk-accent-dark);
+      box-shadow:0 4px 10px rgba(0,0,0,.03);
+    }
+    .tab-link:hover{
+      background:var(--hk-accent); 
+      color:#fff;
+    }
+    .tab-link.active {
+      background:var(--hk-accent);
+      color:#fff;
     }
     .top-right-link{
       text-decoration:none;
-      background:var(--accent);
+      background:var(--hk-accent);
       color:white;
       padding:8px 14px;
       border-radius:8px;
@@ -69,7 +90,7 @@
     .top-right-link:hover{opacity:0.9;}
 
     .card{
-      background:var(--card);
+      background:var(--hk-card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:18px 18px 14px;
@@ -88,7 +109,7 @@
       padding:10px 12px;
       font-size:12px;
     }
-    .summary-item .label{display:block;color:var(--muted);font-size:11px;}
+    .summary-item .label{display:block;color:var(--hk-muted);font-size:11px;}
     .summary-item .value{font-weight:700;font-size:14px;margin-top:2px;}
 
     .filters{
@@ -104,7 +125,8 @@
       font-size:11px;
       color:#6b7280;
     }
-    .filters input{
+    .filters input,
+    .filters select{
       font-size:12px;
       padding:4px 6px;
       border-radius:6px;
@@ -118,7 +140,7 @@
       font-size:12px;
       font-weight:600;
       cursor:pointer;
-      background:var(--accent);
+      background:var(--hk-accent);
       color:#fff;
     }
     .filters .secondary-btn{
@@ -151,7 +173,7 @@
       font-size:13px;
     }
     .order-link{
-      color:var(--accent);
+      color:var(--hk-accent);
       text-decoration:none;
       font-weight:600;
     }
@@ -172,6 +194,18 @@
       </div>
       <a href="{{ url_for('home') }}" class="top-right-link">Home</a>
     </header>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <a href="{{ url_for('home') }}" class="tab-link">Home</a>
+      <a href="{{ url_for('dashboard') }}" class="tab-link active">Dashboard</a>
+      <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
+      <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
+      <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+      <a href="{{ url_for('menu') }}" class="tab-link">Menu</a>
+      <a href="{{ url_for('stats') }}" class="tab-link">Stats</a>
+      <a href="{{ url_for('monthly_summary') }}" class="tab-link">Monthly Summary</a>
+    </div>
 
     <section class="card">
       <h2 style="margin:0 0 8px;font-size:15px;">Summary</h2>
@@ -197,22 +231,37 @@
       <!-- 🔍 Filters -->
       <form class="filters" method="get" action="/dashboard">
         <div class="field">
-            <label for="from_date">From date</label>
-            <input type="date" id="from_date" name="from_date" value="{{ from_date }}">
+          <label for="from_date">From date</label>
+          <input type="date" id="from_date" name="from_date" value="{{ from_date }}">
         </div>
         <div class="field">
-            <label for="to_date">To date</label>
-            <input type="date" id="to_date" name="to_date" value="{{ to_date }}">
+          <label for="to_date">To date</label>
+          <input type="date" id="to_date" name="to_date" value="{{ to_date }}">
         </div>
         <div class="field">
-            <label for="customer">Customer</label>
-            <input type="text" id="customer" name="customer" placeholder="e.g. Riya" value="{{ customer }}">
+          <label for="customer">Customer</label>
+          <input type="text" id="customer" name="customer" placeholder="e.g. Riya" value="{{ customer }}">
+        </div>
+        <!-- 🆕 Status filter -->
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status">
+            <option value="">All</option>
+            <option value="not_cancelled" {% if status == "not_cancelled" %}selected{% endif %}>
+                 Not Cancelled
+            </option>
+            <option value="Accepted"   {% if status == "Accepted" %}selected{% endif %}>Accepted</option>
+            <option value="In Progress" {% if status == "In Progress" %}selected{% endif %}>In Progress</option>
+            <option value="Ready"      {% if status == "Ready" %}selected{% endif %}>Ready</option>
+            <option value="Delivered"  {% if status == "Delivered" %}selected{% endif %}>Delivered</option>
+            <option value="Cancelled"  {% if status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+          </select>
         </div>
         <div class="field" style="flex-direction:row;gap:6px;align-items:center;margin-top:14px;">
-            <button type="submit">Apply filters</button>
-            <button type="button" class="secondary-btn" onclick="window.location.href='/dashboard'">
-              Clear
-            </button>
+          <button type="submit">Apply filters</button>
+          <button type="button" class="secondary-btn" onclick="window.location.href='/dashboard'">
+            Clear
+          </button>
         </div>
       </form>
 
@@ -232,7 +281,7 @@
           {% for o in orders %}
           <tr>
             <td>
-              <a href="/order/{{ o.order_id }}" class="order-link">{{ o.order_id }}</a>
+              <a href="/order/{{ o.order_id }}/forupdate" class="order-link">{{ o.order_id }}</a> 
             </td>
             <td>{{ o.date }}</td>
             <td>{{ o.customer }}</td>

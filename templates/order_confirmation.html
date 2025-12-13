@@ -95,8 +95,8 @@
       background:#ff7a1a;
     }
     .btn.secondary{
-      background:#e5e7eb;
-      color:#374151;
+      background:#ff7a1a;
+      color:#fff;
     }
   </style>
 </head>
@@ -106,7 +106,7 @@
       <header>
         <img src="{{ url_for('static', filename='image.png') }}" alt="Logo" class="logo">
         <div>
-          <h1>Order Details 🎉</h1>
+          <h1>🎉 Order Confirmed 🎉</h1>
           <p>
             Order <strong>{{ order_id }}</strong> for <strong>{{ customer }}</strong> has been recorded.
             <a href="/dashboard" style="color:#f97316;text-decoration:none;font-weight:600;">
@@ -155,6 +155,11 @@
         <div>
           View this order later at:<br>
           <code>/order/{{ order_id }}</code>
+        </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="{{ url_for('addorder') }}">
+            <button type="button" class="btn secondary">Add Another Order</button>
+          </a>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <a href="{{ url_for('home') }}">
