@@ -491,7 +491,7 @@ def dashboard():
 
         orders = []
         for _, row in grouped.iterrows():
-            display_date = row["Date_parsed"].strftime("%m-%d-%Y") if not pd.isna(row["Date_parsed"]) else ""
+            display_date = row["Date_parsed"].strftime("%m-%d-%Y`") if not pd.isna(row["Date_parsed"]) else ""
             orders.append({
                 "order_id": row["Order ID"],
                 "date": display_date,

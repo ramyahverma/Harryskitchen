@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Harry's Kitchen — Stats</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --radius:20px;
+      --hk-bg:#fff9f4;
+      --hk-card:#ffffff;
+      --hk-accent:#ff7a1a;
+      --hk-accent-dark:#e5670d;
+      --hk-text:#2b2b2b;
+      --hk-muted:#6b7280;
+    }
+    body {
+      margin:0;
+      font-family:"Poppins", sans-serif;
+      background:var(--hk-bg);
+      color:var(--hk-text);
+    }
+    .shell {
+      max-width:1000px;
+      margin:0 auto;
+      padding:20px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .brand img {
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      object-fit:cover;
+    }
+    .brand h1 {
+      margin:0;
+      font-size:22px;
+      color:var(--hk-accent-dark);
+    }
+    .brand-subtitle {
+      font-size:13px;
+      color:var(--hk-muted);
+    }
+
+    .logout {
+      border:none;
+      background:#fee2e2;
+      color:#b91c1c;
+      padding:8px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:600;
+      text-decoration:none;
+    }
+
+    /* Main nav tabs (top) */
+    .tabs {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    .tab-link {
+      text-decoration:none;
+      padding:9px 16px;
+      border-radius:999px;
+      background:var(--hk-card);
+      border:1px solid #ffe0c7;
+      font-size:14px;
+      font-weight:500;
+      color:var(--hk-accent-dark);
+      box-shadow:0 4px 10px rgba(0,0,0,.03);
+    }
+    .tab-link:hover {
+      background:var(--hk-accent);
+      color:#fff;
+    }
+    .tab-link.active {
+      background:var(--hk-accent);
+      color:#fff;
+    }
+
+    /* Year tabs inside Stats */
+    .year-tabs {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin:10px 0 20px;
+    }
+    .year-tab {
+      padding:6px 14px;
+      border-radius:999px;
+      border:1px solid #fed7aa;
+      background:var(--hk-card);
+      font-size:13px;
+      font-weight:500;
+      color:var(--hk-accent-dark);
+      cursor:pointer;
+      box-shadow:0 4px 10px rgba(0,0,0,.03);
+    }
+    .year-tab.active {
+      background:var(--hk-accent);
+      color:#fff;
+      border-color:var(--hk-accent);
+    }
+
+    /* Stats container */
+    .stats-card {
+      background:var(--hk-card);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,.05);
+    }
+
+    .stats-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      margin-bottom:10px;
+    }
+    .stats-header h2 {
+      margin:0;
+      font-size:20px;
+    }
+    .stats-header p {
+      margin:0;
+      font-size:13px;
+      color:var(--hk-muted);
+    }
+
+    /* Summary pills */
+    .summary-row {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin:12px 0 18px;
+    }
+    .summary-pill {
+      flex:1 1 150px;
+      min-width:150px;
+      background:#fff7ed;
+      border-radius:999px;
+      padding:8px 14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+    }
+    .summary-label {
+      color:var(--hk-muted);
+    }
+    .summary-value {
+      font-weight:600;
+      color:var(--hk-accent-dark);
+    }
+
+    /* Tables */
+    table {
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+    thead {
+      background:#fff7ed;
+    }
+    th, td {
+      padding:8px 10px;
+      text-align:left;
+    }
+    th {
+      font-weight:600;
+      color:var(--hk-muted);
+      border-bottom:1px solid #fed7aa;
+    }
+    tbody tr:nth-child(even) {
+      background:#fff7ed3b;
+    }
+    tbody tr:hover {
+      background:#fffbeb;
+    }
+    tfoot td {
+      font-weight:600;
+      border-top:1px solid #fed7aa;
+      background:#fff7ed;
+    }
+
+    .year-panel {
+      display:none;
+    }
+    .year-panel.active {
+      display:block;
+    }
+
+    @media (max-width:600px) {
+      .stats-header {
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .summary-row {
+        flex-direction:column;
+      }
+    }
+  </style>
+
+  <script>
+    function showYearPanel(year) {
+      const panels = document.querySelectorAll(".year-panel");
+      const tabs = document.querySelectorAll(".year-tab");
+      panels.forEach(p => p.classList.remove("active"));
+      tabs.forEach(t => t.classList.remove("active"));
+
+      const activePanel = document.getElementById("year-panel-" + year);
+      const activeTab = document.getElementById("year-tab-" + year);
+      if (activePanel) activePanel.classList.add("active");
+      if (activeTab) activeTab.classList.add("active");
+    }
+
+    // Optional: auto-select first year on page load if none active
+    window.addEventListener("DOMContentLoaded", function() {
+      const activePanel = document.querySelector(".year-panel.active");
+      if (!activePanel) {
+        const firstPanel = document.querySelector(".year-panel");
+        const firstTab = document.querySelector(".year-tab");
+        if (firstPanel) firstPanel.classList.add("active");
+        if (firstTab) firstTab.classList.add("active");
+      }
+    });
+  </script>
+</head>
+<body>
+  <div class="shell">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="brand">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
+        <div>
+          <h1>Harry's Kitchen Stats</h1>
+          <div class="brand-subtitle">
+            Monthly overview of expenses & revenue
+          </div>
+        </div>
+      </div>
+
+      <a href="{{ url_for('logout') }}" class="logout">
+        Logout
+      </a>
+    </div>
+
+    <!-- MAIN NAV TABS -->
+    <div class="tabs">
+      <a href="{{ url_for('home') }}" class="tab-link">Home</a>
+      <a href="{{ url_for('dashboard') }}" class="tab-link">Dashboard</a>
+      <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
+      <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
+      <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+      <a href="{{ url_for('menu') }}" class="tab-link">Menu</a>
+      <a href="{{ url_for('stats') }}" class="tab-link active">Stats</a>
+      <a href="{{ url_for('monthly_summary') }}" class="tab-link">Monthly Summary</a>
+    </div>
+
+    <div class="stats-card">
+      <div class="stats-header" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2>Yearly Stats</h2>
+        </div>
+      <a href="{{ url_for('export_stats_excel') }}"
+         style="text-decoration:none; font-size:13px; padding:8px 14px;
+                border-radius:100px; background:#16a34a; color:#fff; font-weight:600;">
+         Export to Excel
+      </a>
+      </div>
+                    <!-- GRAND TOTALS ACROSS ALL YEARS -->
+                   <div style="margin-top:10px; border-bottom:1px solid #fee2c5; padding-bottom:0px;">
+                    <!-- <h3 style="margin:0 0 12px; font-size:16px;">Grand Totals (All Years)</h3> -->
+                    <div class="summary-row">
+                        <div class="summary-pill">
+                            <span class="summary-label">Total Expense <br> (All Years)</span>
+                            <span class="summary-value">
+                             ${{ "{:,.2f}".format(grand_totals["total_expense"]) }}
+                            </span>
+                        </div>
+                     <div class="summary-pill">
+                        <span class="summary-label">Total Cash Received <br>(All Years)</span>
+                        <span class="summary-value">
+                        ${{ "{:,.2f}".format(grand_totals["total_cash"]) }}
+                        </span>
+                    </div>
+                    <div class="summary-pill">
+                        <span class="summary-label">Total Revenue <br> (All Years)</span>
+                        <span class="summary-value">
+                          ${{ "{:,.2f}".format(grand_totals["total_revenue"]) }}
+                        </span>
+                    </div>
+                    <div class="summary-pill">
+                        <span class="summary-label">Total Difference <br> (All Years)</span>
+                        <span class="summary-value">
+                          ${{ "{:,.2f}".format(grand_totals["total_revenue"]-grand_totals["total_cash"]) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+      <!-- YEAR TABS -->
+      <div class="year-tabs">
+        {% for y in years %}
+          <button
+            type="button"
+            class="year-tab {% if loop.first %}active{% endif %}"
+            id="year-tab-{{ y }}"
+            onclick="showYearPanel('{{ y }}')">
+            {{ y }}
+          </button>
+        {% endfor %}
+      </div>
+
+      <!-- YEAR PANELS -->
+      {% for y in years %}
+        {% set monthly = stats_by_year[y] %}
+        <!-- Optional: If you also pass yearly totals, you can use year_totals[y] instead of summing here -->
+        {% set sums = namespace(exp=0, cash=0, rev=0) %}
+        {% set total_exp = 0 %}
+        {% set total_cash = 0 %}
+        {% set total_rev = 0 %}
+        {% for row in monthly %}
+          {% set sums.exp  = sums.exp  + (row.total_expense or 0) %}
+          {% set sums.cash = sums.cash + (row.total_cash or 0) %}
+          {% set sums.rev  = sums.rev  + (row.total_revenue or 0) %}
+        {% endfor %}
+
+        <div
+          class="year-panel {% if loop.first %}active{% endif %}"
+          id="year-panel-{{ y }}">
+          
+          <!-- Summary pills for the selected year -->
+          <div class="summary-row">
+            <div class="summary-pill">
+              <span class="summary-label">Total Expense ({{ y }})</span>
+              <span class="summary-value">₹{{ "{:,.2f}".format(sums.exp) }}</span>
+            </div>
+            <div class="summary-pill">
+              <span class="summary-label">Total Cash Received ({{ y }})</span>
+              <span class="summary-value">₹{{ "{:,.2f}".format(sums.cash) }}</span>
+            </div>
+            <div class="summary-pill">
+              <span class="summary-label">Total Revenue ({{ y }})</span>
+              <span class="summary-value">₹{{ "{:,.2f}".format(sums.rev) }}</span>
+            </div>
+          </div>
+
+          <!-- Month-wise table -->
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Total Expense</th>
+                <th>Total Cash Received</th>
+                <th>Total Revenue Generated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in monthly %}
+                <tr>
+                  <td>{{ row.month }}</td>
+                  <td>₹{{ "{:,.2f}".format(row.total_expense or 0) }}</td>
+                  <td>₹{{ "{:,.2f}".format(row.total_cash or 0) }}</td>
+                  <td>₹{{ "{:,.2f}".format(row.total_revenue or 0) }}</td>
+                </tr>
+              {% endfor %} 
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>Year Total</td>
+                <td>₹{{ "{:,.2f}".format(sums.exp) }}</td>
+                <td>₹{{ "{:,.2f}".format(sums.cash) }}</td>
+                <td>₹{{ "{:,.2f}".format(sums.rev) }}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -7,25 +7,36 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --hk-bg:#fff9f4;
       --hk-card:#ffffff;
       --hk-accent:#ff7a1a;
       --hk-accent-dark:#e5670d;
-      --hk-accent-2:#2f855a;
       --hk-text:#2b2b2b;
       --hk-muted:#6b7280;
       --radius:20px;
     }
-    body{margin:0; font-family:"Poppins",sans-serif; background:var(--hk-bg); color:var(--hk-text);}
-    .shell{max-width:1100px; margin:0 auto; padding:20px;}
-    .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+    body{
+      margin:0; 
+      font-family:"Poppins",sans-serif; 
+      background:var(--hk-bg); 
+      color:var(--hk-text);
+    }
+    .shell{max-width:1000px; margin:0 auto; padding:20px;}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; 
+      margin-bottom:20px;
+    }
     .brand{display:flex; align-items:center; gap:10px;}
     .brand img{width:60px; height:60px; border-radius:50%; object-fit:cover;}
     .brand h1{font-size:22px; margin:0; color:var(--hk-accent-dark);}
     .welcome{font-size:13px; color:var(--hk-muted);}
-    .tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;}
+
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;
+    }
     .tab-link{
       text-decoration:none;
       padding:9px 16px;
@@ -36,28 +47,100 @@
       color:var(--hk-accent-dark);
       box-shadow:0 4px 10px rgba(0,0,0,.03);
     }
-    .tab-link:hover{background:var(--hk-accent); color:#fff;}
+    .tab-link:hover{
+      background:var(--hk-accent); 
+      color:#fff;
+    }
+    .tab-link.active {
+      background:var(--hk-accent);
+      color:#fff;
+    }
+
     .card{
-      background:var(--hk-card); border-radius:var(--radius);
+      background:var(--hk-card); 
+      border-radius:var(--radius);
       padding:20px; box-shadow:0 12px 30px rgba(0,0,0,.06);
     }
+
     .logout{
       border:none; background:#fee2e2; color:#b91c1c;
       padding:8px 14px; border-radius:999px; cursor:pointer;
       font-size:12px; font-weight:600;
     }
+
+    /* ---------------------- MENU GRID ---------------------- */
+    .menu-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+      gap:20px;
+      margin-top:20px;
+    }
+    .menu-item{
+      cursor:pointer;
+      text-align:center;
+    }
+    .menu-item img{
+      width:100%; height:140px; object-fit:cover;
+      border-radius:16px; 
+      box-shadow:0 6px 15px rgba(0,0,0,0.15);
+      transition:transform 0.2s;
+    }
+    .menu-item img:hover{
+      transform:scale(1.05);
+    }
+    .menu-label{
+      margin-top:8px;
+      font-size:14px;
+      font-weight:600;
+      color:var(--hk-accent-dark);
+    }
+
+    /* ---------------------- FULLSCREEN VIEW ---------------------- */
+    .fullscreen-viewer{
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.9);
+      justify-content:center;
+      align-items:center;
+      z-index:9999;
+    }
+    .fullscreen-viewer img{
+      max-width:95%;
+      max-height:95%;
+      border-radius:16px;
+    }
   </style>
+
+  <script>
+    function showFullScreen(src){
+      let viewer = document.getElementById("fullscreenViewer");
+      let bigImg = document.getElementById("fullImage");
+      bigImg.src = src;
+      viewer.style.display = "flex";
+    }
+    function closeFullScreen(){
+      document.getElementById("fullscreenViewer").style.display = "none";
+    }
+  </script>
+
 </head>
 <body>
+
+  <div id="fullscreenViewer" class="fullscreen-viewer" onclick="closeFullScreen()">
+    <img id="fullImage" src="">
+  </div>
+
   <div class="shell">
+
+    <!-- TOP BAR -->
     <div class="topbar">
       <div class="brand">
         <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
         <div>
           <h1>Harry's Kitchen</h1>
-          <div class="welcome">
-            Welcome, {{ user_id }} — happy cooking!
-          </div>
+          <div class="welcome">Welcome, {{ user_id }} — happy cooking!</div>
         </div>
       </div>
       <form action="{{ url_for('logout') }}" method="get">
@@ -65,21 +148,45 @@
       </form>
     </div>
 
+    <!-- TABS -->
     <div class="tabs">
+      <a href="{{ url_for('home') }}" class="tab-link active">Home</a>
       <a href="{{ url_for('dashboard') }}" class="tab-link">Dashboard</a>
       <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
-      <!-- Search / Update can be wired later when you add routes -->
       <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
       <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+      <a href="{{ url_for('menu') }}" class="tab-link">Menu</a>
+      <a href="{{ url_for('stats') }}" class="tab-link">Stats</a>
+      <a href="{{ url_for('monthly_summary') }}" class="tab-link">Monthly Summary</a>
     </div>
 
+    <!-- HOME CARD -->
     <div class="card">
       <h2 style="margin-top:0;">Portal Home</h2>
       <p style="color:var(--hk-muted); font-size:14px;">
-        Use the tabs above to view your dashboard, add new orders,
-        and (soon) search or update existing orders.
+        Use the tabs above to view your dashboard, add orders, and explore our Menu.
       </p>
     </div>
+
+    <!-- ================= MENU SECTION ================= -->
+    <div id="menu-section" class="card" style="margin-top:30px;">
+      <h2 style="margin-top:0;">Harry's Kitchen - Menu</h2>
+
+      <div class="menu-grid">
+        <!-- EXAMPLE MENU ITEMS -->
+        <div class="menu-item" onclick="showFullScreen('{{ url_for('static', filename='menu/nonveg.jpg') }}')">
+          <img src="{{ url_for('static', filename='menu/nonveg.jpg') }}">
+          <div class="menu-label">Non Veg Menu</div>
+        </div>
+
+        <div class="menu-item" onclick="showFullScreen('{{ url_for('static', filename='menu/veg.jpg') }}')">
+          <img src="{{ url_for('static', filename='menu/veg.jpg') }}">
+          <div class="menu-label">Veg Menu</div>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </body>
 </html>

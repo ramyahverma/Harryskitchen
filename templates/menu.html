@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Harry's Kitchen — Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --radius:20px;
+      --hk-bg:#fff9f4;
+      --hk-card:#ffffff;
+      --hk-accent:#ff7a1a;
+      --hk-accent-dark:#e5670d;
+      --hk-text:#2b2b2b;
+      --hk-muted:#6b7280;
+    }
+    body {
+      margin:0;
+      font-family:"Poppins", sans-serif;
+      background:var(--hk-bg);
+      color:var(--hk-text);
+    }
+    .shell {
+      max-width:1000px;
+      margin:0 auto;
+      padding:20px;
+    }
+
+    /* Top bar */
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:20px;
+    }
+    .brand {
+      display:flex; 
+      align-items:center; 
+      gap:10px;
+    }
+    .brand img {
+      width:60px; height:60px;
+      border-radius:50%;
+      object-fit:cover;
+    }
+    .brand h1 {
+      margin:0;
+      font-size:22px;
+      color:var(--hk-accent-dark);
+    }
+    .logout {
+      border:none;
+      background:#fee2e2;
+      color:#b91c1c;
+      padding:8px 14px;
+      border-radius:999px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:600;
+      text-decoration:none;
+    }
+
+    .tabs {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    .tab-link {
+      text-decoration:none;
+      padding:9px 16px;
+      border-radius:999px;
+      background:var(--hk-card);
+      border:1px solid #ffe0c7;
+      font-size:14px; 
+      font-weight:500;
+      color:var(--hk-accent-dark);
+      box-shadow:0 4px 10px rgba(0,0,0,.03);
+    }
+    .tab-link:hover {
+      background:var(--hk-accent); 
+      color:#fff;
+    }
+    .tab-link.active {
+      background:var(--hk-accent);
+      color:#fff;
+    }
+
+    /* Menu grid */
+    .menu-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+      gap:20px;
+      margin-top:20px;
+    }
+    .menu-item {
+      cursor:pointer;
+      text-align:center;
+      text-decoration:none;
+      color:inherit;
+      display:block;
+    }
+    .menu-item img {
+      width:100%;
+      height:150px;
+      object-fit:cover;
+      border-radius:16px;
+      box-shadow:0 6px 15px rgba(0,0,0,0.15);
+      transition:transform .2s;
+      display:block;
+    }
+    .menu-item img:hover {
+      transform:scale(1.05);
+    }
+    .menu-label {
+      margin-top:8px;
+      font-size:14px;
+      font-weight:600;
+      color:var(--hk-accent-dark);
+    }
+
+    /* Video player */
+    .video-player {
+      width:90vw;
+      height:auto;
+      max-height:90vh;
+      border-radius:10px;
+      background:black;
+      box-shadow:0 6px 20px rgba(0,0,0,0.5);
+    }
+
+    /* Fullscreen lightbox (CSS-only) */
+    .lightbox {
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      background:rgba(0,0,0,0.9);
+      display:none;
+      justify-content:center;
+      align-items:center;
+      z-index:9999;
+    }
+    .lightbox:target {
+      display:flex;
+    }
+    .lightbox-content {
+      position:relative;
+      width:100vw;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden;
+    }
+
+    .lightbox-content img {
+      width:100vw;
+      height:100vh;
+      object-fit:contain;
+      background:black;
+      border-radius:0;
+      transition:transform 0.3s ease;
+    }
+
+    /* Zoom logic */
+    .zoom-box {
+      position:relative;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100vw;
+      height:100vh;
+    }
+    .zoom-target {
+      max-width:100vw;
+      max-height:100vh;
+      transition:transform 0.3s ease;
+    }
+    .zoom-toggle {
+      display:none;
+    }
+    .zoom-toggle:checked ~ .zoom-target {
+      transform:scale(1.6);
+      cursor:zoom-out;
+    }
+    .zoom-toggle:not(:checked) ~ .zoom-target {
+      cursor:zoom-in;
+    }
+
+    .zoom-btn {
+      position:absolute;
+      bottom:30px;
+      left:50%;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,0.6);
+      color:#fff;
+      padding:8px 14px;
+      border-radius:20px;
+      font-size:14px;
+      text-decoration:none;
+      cursor:pointer;
+    }
+
+    /* Navigation buttons */
+    .lightbox-nav {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      background:rgba(0,0,0,0.6);
+      color:#fff;
+      border:none;
+      padding:10px 16px;
+      font-size:26px;
+      font-weight:bold;
+      border-radius:50%;
+      text-decoration:none;
+      cursor:pointer;
+    }
+    .lightbox-prev { left:20px; }
+    .lightbox-next { right:20px; }
+
+    /* Close button */
+    .lightbox-close {
+      position:absolute;
+      top:20px;
+      right:20px;
+      background:rgba(0,0,0,0.6);
+      color:#fff;
+      border:none;
+      padding:8px 14px;
+      font-size:22px;
+      border-radius:50%;
+      text-decoration:none;
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="shell">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="brand">
+        <img src="{{ url_for('static', filename='image.png') }}" alt="Logo">
+        <div>
+          <h1>Harry's Kitchen Menu</h1>
+          <div style="font-size:13px; color:var(--hk-muted);">
+            Explore our delicious offerings
+          </div>
+        </div>
+      </div>
+
+      <a href="{{ url_for('logout') }}" class="logout">
+        Logout
+      </a>
+    </div>
+
+    <!-- NAV TABS -->
+    <div class="tabs">
+      <a href="{{ url_for('home') }}" class="tab-link">Home</a>
+      <a href="{{ url_for('dashboard') }}" class="tab-link">Dashboard</a>
+      <a href="{{ url_for('addorder') }}" class="tab-link">Add Order</a>
+      <a href="{{ url_for('srchorder') }}" class="tab-link">Search Order</a>
+      <a href="{{ url_for('updorder') }}" class="tab-link">Update Order</a>
+      <a href="{{ url_for('menu') }}" class="tab-link active">Menu</a>
+      <a href="{{ url_for('stats') }}" class="tab-link">Stats</a>
+      <a href="{{ url_for('monthly_summary') }}" class="tab-link">Monthly Summary</a>
+    </div>
+
+    <h2 style="margin-top:0;">Available Menu Items</h2>
+
+    <!-- MENU ICON GRID -->
+    <div class="menu-grid">
+      <a href="#vid-gb" class="menu-item">
+        <img src="{{ url_for('static', filename='menu/GJ.jpg') }}" alt="Gulab Jamoon">
+        <div class="menu-label">Gulab Jamoon (Video)</div>
+      </a>
+
+      <a href="#img-nonveg" class="menu-item">
+        <img src="{{ url_for('static', filename='menu/nonveg.jpg') }}" alt="Non Veg Menu">
+        <div class="menu-label">Non Veg Menu</div>
+      </a>
+
+      <a href="#img-veg" class="menu-item">
+        <img src="{{ url_for('static', filename='menu/veg.jpg') }}" alt="Veg Menu">
+        <div class="menu-label">Veg Menu</div>
+      </a>
+
+      <a href="#img-cbcombo" class="menu-item">
+        <img src="{{ url_for('static', filename='menu/cbcombo.jpg') }}" alt="Chicken Biriyani Combo">
+        <div class="menu-label">Chicken Biriyani Combo</div>
+      </a>
+
+      <a href="#img-chi65" class="menu-item">
+        <img src="{{ url_for('static', filename='menu/chi65.jpg') }}" alt="Chicken 65">
+        <div class="menu-label">Chicken 65</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== FULLSCREEN LIGHTBOXES ===== -->
+
+  <!-- Video: Gulab Jamoon -->
+  <div id="vid-gb" class="lightbox">
+    <div class="lightbox-content">
+      <a href="#img-chi65" class="lightbox-nav lightbox-prev">❮</a>
+
+      <!-- IMPORTANT: no autoplay, user clicks Play -->
+      <video controls preload="auto" muted playsinline class="video-player">
+        <source src="{{ url_for('static', filename='menu/GJ.mp4') }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+
+      <a href="#img-nonveg" class="lightbox-nav lightbox-next">❯</a>
+      <a href="#" class="lightbox-close">✕</a>
+    </div>
+  </div>
+
+  <!-- Non Veg -->
+  <div id="img-nonveg" class="lightbox">
+    <div class="lightbox-content">
+      <a href="#vid-gb" class="lightbox-nav lightbox-prev">❮</a>
+
+      <div class="zoom-box">
+        <input type="checkbox" id="zoom-nonveg" class="zoom-toggle">
+        <label for="zoom-nonveg" class="zoom-btn">Zoom In / Out</label>
+        <img src="{{ url_for('static', filename='menu/nonveg.jpg') }}" alt="Non Veg Menu" class="zoom-target">
+      </div>
+
+      <a href="#img-veg" class="lightbox-nav lightbox-next">❯</a>
+      <a href="#" class="lightbox-close">✕</a>
+    </div>
+  </div>
+
+  <!-- Veg -->
+  <div id="img-veg" class="lightbox">
+    <div class="lightbox-content">
+      <a href="#img-nonveg" class="lightbox-nav lightbox-prev">❮</a>
+
+      <div class="zoom-box">
+        <input type="checkbox" id="zoom-veg" class="zoom-toggle">
+        <label for="zoom-veg" class="zoom-btn">Zoom In / Out</label>
+        <img src="{{ url_for('static', filename='menu/veg.jpg') }}" alt="Veg Menu" class="zoom-target">
+      </div>
+
+      <a href="#img-cbcombo" class="lightbox-nav lightbox-next">❯</a>
+      <a href="#" class="lightbox-close">✕</a>
+    </div>
+  </div>
+
+  <!-- cbcombo -->
+  <div id="img-cbcombo" class="lightbox">
+    <div class="lightbox-content">
+      <a href="#img-veg" class="lightbox-nav lightbox-prev">❮</a>
+
+      <div class="zoom-box">
+        <input type="checkbox" id="zoom-cbcombo" class="zoom-toggle">
+        <label for="zoom-cbcombo" class="zoom-btn">Zoom In / Out</label>
+        <img src="{{ url_for('static', filename='menu/cbcombo.jpg') }}" alt="Creamy cbcombo" class="zoom-target">
+      </div>
+
+      <a href="#img-chi65" class="lightbox-nav lightbox-next">❯</a>
+      <a href="#" class="lightbox-close">✕</a>
+    </div>
+  </div>
+
+  <!-- chi65 -->
+  <div id="img-chi65" class="lightbox">
+    <div class="lightbox-content">
+      <a href="#img-cbcombo" class="lightbox-nav lightbox-prev">❮</a>
+
+      <div class="zoom-box">
+        <input type="checkbox" id="zoom-chi65" class="zoom-toggle">
+        <label for="zoom-chi65" class="zoom-btn">Zoom In / Out</label>
+        <img src="{{ url_for('static', filename='menu/chi65.jpg') }}" alt="Chicken 65" class="zoom-target">
+      </div>
+
+      <a href="#vid-gb" class="lightbox-nav lightbox-next">❯</a>
+      <a href="#" class="lightbox-close">✕</a>
+    </div>
+  </div>
+
+</body>
+</html>
