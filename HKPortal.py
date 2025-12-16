@@ -16,7 +16,6 @@ EXPENSE_FILE = os.path.join(BASE_DIR, "Expenses.xlsx")
 REMIT_FILE = os.path.join(BASE_DIR, "MoneyMatters.xlsx")
 Dashboard_page = "dashboard.html"
 
-
 # In-memory items + current customer for the ongoing order
 items = []
 current_customer = ""
@@ -107,6 +106,14 @@ def home():
     user_id = session.get("user_id")
     return render_template("home.html", user_id=user_id)
 
+@app.after_request
+def no_cache_for_dynamic_pages(response):
+    # Apply no-cache to dynamic pages only (add more paths if needed)
+    if request.path in ("/addorder", "/"):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 @app.route("/logout", methods=["GET"])
 def logout():
