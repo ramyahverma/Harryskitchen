@@ -208,11 +208,11 @@
     });
 
     const submitBtn = $('#submitOrder');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', ()=>{
-        submitBtn.classList.add('processing');
-        submitBtn.textContent = 'Submitting...';
-      });
+     if (submitForm && submitBtn) {
+    submitForm.addEventListener("submit", () => {
+      submitBtn.classList.add("processing");
+      submitBtn.textContent = "Submitting...";
+    });
     }
 
     calc();
