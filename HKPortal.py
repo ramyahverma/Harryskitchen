@@ -106,6 +106,8 @@ def home():
     user_id = session.get("user_id")
     return render_template("home.html", user_id=user_id)
 
+from flask import request
+
 @app.after_request
 def no_cache_for_dynamic_pages(response):
     # Apply no-cache to dynamic pages only (add more paths if needed)
