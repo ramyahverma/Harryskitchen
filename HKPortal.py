@@ -9,8 +9,7 @@ from functools import wraps
 
 app = Flask(__name__)
 
-app.secret_key = "super-secret-change-me"
-
+app.secret_key = os.environ.get("SECRET_KEY")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EXCEL_FILE = os.path.join(BASE_DIR, "orders.xlsx")
 EXPENSE_FILE = os.path.join(BASE_DIR, "Expenses.xlsx")
@@ -22,6 +21,16 @@ Dashboard_page = "dashboard.html"
 items = []
 current_customer = ""
 orderid="order_id"
+
+def get_cart():
+    session.setdefault("items", [])
+    session.setdefault("current_customer", "")
+    return session["items"], session["current_customer"]
+
+def set_cart(items, current_customer):
+    session["items"] = items
+    session["current_customer"] = current_customer
+    session.modified = True
 
 def login_required(f):
     """Decorator to protect routes: sends user to login if not authenticated."""
@@ -107,6 +116,7 @@ def logout():
 
 @app.route("/addorder", methods=["GET"])
 def addorder():
+    items, current_customer = get_cart()
     grand_total = sum(i["line_total"] for i in items) if items else 0
 
     return render_template(
@@ -120,8 +130,7 @@ def addorder():
 @app.route("/add", methods=["POST"])
 def add_item():
     """Add a single line item to the in-memory list and show it on the page."""
-    global items, current_customer
-
+    items, current_customer = get_cart()
     posted_customer = request.form["customer"].strip()
     item = request.form["item"].strip()
     price = float(request.form["price"])
@@ -142,7 +151,7 @@ def add_item():
         "count": count,
         "line_total": line_total,
     })
-
+    set_cart(items, current_customer)
     return redirect("/addorder")
 
 
@@ -156,39 +165,26 @@ def submit_order():
     - clear current in-memory items & customer
     - show acknowledgement page
     """
-    global items, current_customer
-
+    "global items, current_customer"
+    items, current_customer = get_cart()
     if not items:
         return redirect("/addorder")
 
     today = datetime.now().strftime("%m/%d/%Y")
     order_id = get_next_order_id()
 
-    line_items = []
+    excel_rows = []
     for it in items:
-        line_items.append({
-            orderid: order_id,
-            "date": today,
-            "customer": it["customer"],
-            "item": it["item"],
-            "price": it["price"],
-            "count": it["count"],
-            "line_total": it["line_total"],
+        excel_rows.append({
+            "Order ID": order_id,
+            "Date": today,
+            "Customer": it["customer"],
+            "Item": it["item"],
+            "Price": float(it["price"]),
+            "Count": int(it["count"]),
+            "Line Total": float(it["line_total"]),
+            "Status": "Accepted",
         })
-
-    excel_rows = [
-        {
-            "Order ID": li[orderid],
-            "Date": li["date"],
-            "Customer": li["customer"],
-            "Item": li["item"],
-            "Price": li["price"],
-            "Count": li["count"],
-            "Line Total": li["line_total"],
-            "Status" : "Accepted",
-        }
-        for li in line_items
-    ]
 
     new_df = pd.DataFrame(excel_rows)
 
@@ -202,11 +198,22 @@ def submit_order():
 
     order_date = today
     customer_name = current_customer
-    grand_total = sum(li["line_total"] for li in line_items)
+    grand_total = sum(r["Line Total"] for r in excel_rows)
+    line_items = [
+        {
+            "date": today,
+            "customer": r["Customer"],
+            "item": r["Item"],
+            "price": r["Price"],
+            "count": r["Count"],
+            "line_total": r["Line Total"],
+        }
+        for r in excel_rows
+    ]
 
     # ✅ Reset in-memory state for a fresh order next time
-    items = []
-    current_customer = ""
+    set_cart([], "")
+
 
     return render_template(
         "order_confirmation.html",
