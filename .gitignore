@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Virtual envs
+venv/
+.venv/
+env/
+ENV/
+
+# Flask
+instance/
+*.sqlite3
+
+# Tools
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.scannerwork/
